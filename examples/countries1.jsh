@@ -161,7 +161,7 @@ countries.stream().
 // 23. Prints the name and population of each country in descending order of population:
 
 countries.stream().
-  sorted(Comparator.comparingLong(Country::population)).
+  sorted(Comparator.comparingLong(Country::population).reversed()).
   forEach(country -> System.out.printf("%s: %d\n", country.name(), country.population()));
 
 // 24. Returns the length of the longest country name:
