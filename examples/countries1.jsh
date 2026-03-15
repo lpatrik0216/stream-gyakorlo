@@ -113,9 +113,14 @@ Country mostPopulousCountry = countries.stream().
 
 countries.stream().
   filter(country -> country.region() == Region.EUROPE).
-  max(Comparator.comparingLong(Country::population)).
+  max(Comparator.comparingLong(Country::population)). // max() returns an Optional
   get().
   name();
+
+countries.stream().
+  filter(country -> country.region() == Region.EUROPE).
+  max(Comparator.comparingLong(Country::population)). // max() returns an Optional
+  map(Country::name); // returns the country name from the Optional wrapped in an Optional
 
 // 17. Prints the names of the first five countries:
 
