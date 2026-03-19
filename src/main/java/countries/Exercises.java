@@ -1,9 +1,7 @@
 package countries;
 
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.LongSummaryStatistics;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Exercises extends CountryRepository{
@@ -201,6 +199,98 @@ public class Exercises extends CountryRepository{
                 .forEach(System.out::println);
     }
 
+    public void printTenSmallestPopulation(){
+                getAll().stream()
+                        .sorted(Comparator.comparing(Country::population))
+                        .mapToLong(Country::population)
+                        .limit(10)
+                        .forEach(System.out::println);
+    }
+
+    public void printTenLeastPopulatedCountries(){
+        getAll().stream()
+                .sorted(Comparator.comparing(Country::population))
+                .map(Country::name)
+                .limit(10)
+                .forEach(System.out::println);
+    }
+
+    public IntSummaryStatistics getSummaryAboutNumberOfTranslations(){
+        return getAll().stream()
+                .mapToInt(country -> country.translations().size())
+                .summaryStatistics();
+    }
+
+    public void printCountryNamesSortedByNumberOfTimezones(){
+        getAll().stream()
+                .sorted(Comparator.comparing(country -> country.timezones().size()))
+                .map(Country::name)
+                .forEach(System.out::println);
+    }
+
+    public void printCountriesWithNumberOfTimezones(){
+        getAll().stream()
+                .sorted(Comparator.comparing(country -> country.timezones().size()))
+                .forEach(country -> System.out.printf("%s : %d%n", country.name(),country.timezones().size()));
+    }
+
+    public long getCountriesWithNoFarsi(){
+        return getAll().stream()
+                .filter(country -> !country.translations().containsKey("fa"))
+                .count();
+    }
+
+    public void printCountriesWithNullArea(){
+        getAll().stream()
+                .filter(country -> country.area() == null)
+                .map(Country::name)
+                .forEach(System.out::println);
+    }
+
+    public void printAllTranslationCode(){
+        getAll().stream()
+                .flatMap(country -> country.translations().keySet().stream())
+                .distinct()
+                .sorted(Comparator.naturalOrder())
+                .forEach(System.out::println);
+    }
+
+    public OptionalDouble getAverageLengthOfCountryNames(){
+        return getAll().stream()
+                .mapToLong(country -> country.name().length())
+                .average();
+    }
+
+    public void printRegionOfNullAreaCountries(){
+        getAll().stream()
+                .filter(country -> country.area()==null)
+                .map(Country::region)
+                .distinct()
+                .forEach(System.out::println);
+    }
+
+    public Optional<String> getCountryWithBiggestArea(){
+        return getAll().stream()
+                .filter(country -> country.area()!=null)
+                .sorted(Comparator.comparing(Country::area).reversed())
+                .map(Country::name)
+                .findFirst();
+    }
+
+    public void printCountriesWithAreasLessThanOne(){
+        getAll().stream()
+                .filter(country -> country.area()!=null && country.area().compareTo(BigDecimal.ONE)<0)
+                .map(Country::name)
+                .forEach(System.out::println);
+    }
+
+    public void printAllTimezonesOfEuropeAndAsia(){
+        getAll().stream()
+                .filter(country -> country.region()==Region.EUROPE || country.region()==Region.ASIA)
+                .flatMap(country -> country.timezones().stream())
+                .distinct()
+                .forEach(System.out::println);
+    }
 
     public static void main(String[] args) {
         Exercises manager = new Exercises();
@@ -236,5 +326,18 @@ public class Exercises extends CountryRepository{
         //System.out.println(manager.isThereACountryWithSubstringIsland());//2.1
         //System.out.println(manager.getFirstCountryWithSubstrIsland()); //2.2
         //manager.printCountriesWithSameFirstAndLastLetters(); //2.3
+        //manager.printTenSmallestPopulation(); //2.4
+        //manager.printTenLeastPopulatedCountries(); //2.5
+        //System.out.println(manager.getSummaryAboutNumberOfTranslations()); //2.6
+        //manager.printCountryNamesSortedByNumberOfTimezones(); //2.7
+        //manager.printCountriesWithNumberOfTimezones(); //2.8
+        //System.out.println(manager.getCountriesWithNoFarsi()); //2.9
+        //manager.printCountriesWithNullArea(); //2.10
+        //manager.printAllTranslationCode(); //2.11
+        //manager.getAverageLengthOfCountryNames().ifPresent(System.out::println); //2.12
+        //manager.printRegionOfNullAreaCountries(); //2.13
+        //manager.getCountryWithBiggestArea().ifPresent(System.out::println); //2.14
+        //manager.printCountriesWithAreasLessThanOne(); //2.15
+        //manager.printAllTimezonesOfEuropeAndAsia(); //2.16
         }
 }
