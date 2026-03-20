@@ -2,6 +2,7 @@ package countries;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Exercises extends CountryRepository{
@@ -292,6 +293,70 @@ public class Exercises extends CountryRepository{
                 .forEach(System.out::println);
     }
 
+    public Country getCountryWithBiggestPopulation(){
+        return getAll().stream()
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(Country::population))
+                .get();
+
+    }
+
+    public void printNamesOfNullCountries(){
+        getAll().stream()
+                .filter(country -> country.area()==null)
+                .map(Country::name)
+                .forEach(System.out::println);
+    }
+
+    public DoubleSummaryStatistics getSummaryAboutAreasOfCountries(){
+        return getAll().stream()
+                .map(Country::area)
+                .filter(Objects::nonNull)
+                .mapToDouble(BigDecimal::doubleValue)
+                .summaryStatistics();
+
+    }
+
+    public double getSumOfCountriesArea(){
+        return getAll().stream()
+                .filter(country -> country.area()!=null)
+                .mapToDouble(country -> country.area().doubleValue())
+                .sum();
+
+    }
+
+    public String getCountriesWithCommas(){
+        return getAll().stream()
+                .map(Country::name)
+                .sorted(Comparator.naturalOrder())
+                .collect(Collectors.joining(","));
+    }
+
+    public Map<String,String> getCountryNamesAndCodes(){
+        return getAll().stream()
+                .collect(Collectors.toMap(Country::code,Country::name));
+    }
+
+    public Map<String,Country> getCountriesByCodes(){
+        return getAll().stream()
+                .collect(Collectors.toMap(Country::code, Function.identity()));
+    }
+
+    public void printCountriesWithPopulationLessThanHungary(){
+        Map<String,Country> countryMap = getAll().stream()
+                .collect(Collectors.toMap(Country::code, Function.identity()));
+        Country hungary= countryMap.get("HU");
+        getAll().stream()
+                .filter(country -> country.population()<= hungary.population())
+                .sorted(Comparator.comparingLong(Country::population).reversed())
+                .forEach(country -> System.out.printf("%s:%d%n", country.name(), country.population()));
+    }
+
+    public Map<Boolean, Long> getNumberOfEuropeanAndNonEuropeanCountries(){
+        return getAll().stream()
+                .collect(Collectors.partitioningBy(country -> country.region().equals(Region.EUROPE), Collectors.counting()));
+    }
+
     public static void main(String[] args) {
         Exercises manager = new Exercises();
 
@@ -339,5 +404,16 @@ public class Exercises extends CountryRepository{
         //manager.getCountryWithBiggestArea().ifPresent(System.out::println); //2.14
         //manager.printCountriesWithAreasLessThanOne(); //2.15
         //manager.printAllTimezonesOfEuropeAndAsia(); //2.16
+
+        //System.out.println(manager.getCountryWithBiggestPopulation()); //3.1
+        //manager.printNamesOfNullCountries(); //3.2
+        //System.out.println(manager.getSummaryAboutAreasOfCountries()); //3.3
+        //System.out.println(manager.getSumOfCountriesArea()); //3.4
+        //System.out.println(manager.getCountriesWithCommas()); //3.5
+        //System.out.println(manager.getCountryNamesAndCodes()); //3.6
+        //Map<String,Country> countryMap = manager.getCountriesByCodes(); //3.7
+        //System.out.println(countryMap.get("HU")); //3.7 extension
+        //manager.printCountriesWithPopulationLessThanHungary(); //3.8 - Unlikely in exam since not only a stream pipeline in the methods body.
+        System.out.println(manager.getNumberOfEuropeanAndNonEuropeanCountries());
         }
 }
