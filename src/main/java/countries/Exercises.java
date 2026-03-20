@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
+
 public class Exercises extends CountryRepository{
     public void printNameOfCountries(){
         getAll().stream()
@@ -354,7 +356,58 @@ public class Exercises extends CountryRepository{
 
     public Map<Boolean, Long> getNumberOfEuropeanAndNonEuropeanCountries(){
         return getAll().stream()
-                .collect(Collectors.partitioningBy(country -> country.region().equals(Region.EUROPE), Collectors.counting()));
+                .collect(Collectors.partitioningBy(country -> country.region().equals(Region.EUROPE), counting()));
+    }
+
+    public Map<Region,List<Country>> getCountriesByRegion(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(Country::region));
+    }
+
+    public Map<Region,Long> getNumberOfCountriesByRegion(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(Country::region, counting()));
+    }
+
+    public void printNumberOfCountriesByRegion(){
+        getAll().stream()
+                .collect(Collectors.groupingBy(Country::region, counting()))
+                .forEach((region, count) -> System.out.printf("%s:%d%n", region,count));
+    }
+
+    public Map<Region,Double> getAveragePopulationsOfRegions(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(Country::region, averagingDouble(Country::population)));
+    }
+
+    public Map<Region,Optional<Country>> getMaxPopulatedCountriesOfRegions(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(Country::region, maxBy(Comparator.comparing(Country::population))));
+    }
+
+    public Map<Region,Optional<Long>> getMaxPopulationsOfRegions(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(Country::region, mapping(Country::population,maxBy(Long::compare))));
+    }
+
+    public Map<Region, Optional<String>> getLongestCountryNameByRegion(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(Country::region, mapping(Country::name, maxBy(Comparator.comparing(String::length)))));
+    }
+
+    public Map<Character, Long> getHowManyCountriesStartWithSameLetter(){
+        return getAll().stream()
+                .collect(Collectors.groupingBy(country -> country.name().charAt(0) , counting()));
+    }
+
+    public boolean isThereTwoOrMoreCountriesWithSameSize(){
+        return getAll().stream()
+                .map(Country::area)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(Function.identity(), counting()))
+                .entrySet()
+                .stream()
+                .anyMatch(e -> e.getValue() > 1);
     }
 
     public static void main(String[] args) {
@@ -414,6 +467,15 @@ public class Exercises extends CountryRepository{
         //Map<String,Country> countryMap = manager.getCountriesByCodes(); //3.7
         //System.out.println(countryMap.get("HU")); //3.7 extension
         //manager.printCountriesWithPopulationLessThanHungary(); //3.8 - Unlikely in exam since not only a stream pipeline in the methods body.
-        System.out.println(manager.getNumberOfEuropeanAndNonEuropeanCountries());
+        //System.out.println(manager.getNumberOfEuropeanAndNonEuropeanCountries()); //3.9
+        //System.out.println(manager.getCountriesByRegion()); //3.10
+        //System.out.println(manager.getNumberOfCountriesByRegion()); //3.11
+        //manager.printNumberOfCountriesByRegion(); //3.12
+        //System.out.println(manager.getAveragePopulationsOfRegions()); //3.13
+        //System.out.println(manager.getMaxPopulatedCountriesOfRegions()); //3.14
+        //System.out.println(manager.getMaxPopulationsOfRegions()); //3.15
+        //System.out.println(manager.getLongestCountryNameByRegion()); //3.16
+        //System.out.println(manager.getHowManyCountriesStartWithSameLetter()); //3.17
+        //System.out.println(manager.isThereTwoOrMoreCountriesWithSameSize()); //3.18
         }
 }
